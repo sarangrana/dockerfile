@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s
+  labels:
+    app: k8s
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: k8s
+    tier: k8s
+  type: NodePort
+---
+apiVersion: apps/v1beta2  # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: k8s
+  labels:
+    app: k8s
+spec:
+  selector:
+    matchLabels:
+      app: k8s
+      tier: k8s
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: k8s
+        tier: k8s
+    spec:
+      containers:
+      - image: amritase/amritase
+        name: k8s
+        ports:
+        - containerPort: 8080
+          name: ems2
+        imagePullPolicy: Always
