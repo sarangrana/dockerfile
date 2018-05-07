@@ -1,34 +1,25 @@
-# Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; version 2 of the License.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-FROM oraclelinux:7-slim
+#Base Image
+FROM ubuntu:14.04
 
-ARG PACKAGE_URL=https://repo.mysql.com/yum/mysql-8.0-community/docker/x86_64/mysql-community-server-minimal-8.0.11-1.el7.x86_64.rpm
-ARG PACKAGE_URL_SHELL=https://repo.mysql.com/yum/mysql-tools-community/el/7/x86_64/mysql-shell-8.0.11-1.el7.x86_64.rpm
+#Adding discription to the images
+LABEL Description="This image is used for github->circleci->dockerhub->tutum->aws" Version="1.0"
 
-# Install server
-RUN rpmkeys --import https://repo.mysql.com/RPM-GPG-KEY-mysql \
-  && yum install -y $PACKAGE_URL $PACKAGE_URL_SHELL libpwquality \
-  && yum clean all \
-  && mkdir /docker-entrypoint-initdb.d
+# File Author / Maintainer
+MAINTAINER pushpendra
 
-VOLUME /var/lib/mysql
+RUN apt-get update
 
-COPY docker-entrypoint.sh /entrypoint.sh
-COPY healthcheck.sh /healthcheck.sh
-ENTRYPOINT ["/entrypoint.sh"]
-HEALTHCHECK CMD /healthcheck.sh
-EXPOSE 3306 33060
-CMD ["mysqld"]
+RUN sudo apt-get install -y openjdk-7-jdk
+
+RUN sudo apt-get install -y tomcat7
+ 
+ENV CATALINA_HOME /usr/share/tomcat7/
+ENV CATALINA_BASE /var/lib/tomcat7/
+ENV PATH $CATALINA_HOME/bin:$PATH
+
+COPY ./target/*.war /var/lib/tomcat7/webapps/EmployeeApplication.war 
+EXPOSE 8080
+ 
+CMD ["catalina.sh", "run"]
+
 
