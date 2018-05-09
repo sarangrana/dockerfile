@@ -32,7 +32,7 @@ spec:
         tier: k8s
     spec:
       containers:
-      - image: sarangrana/k8ems:8
+      - image: sarangrana/k8ems:
         name: k8s
         ports:
         - containerPort: 8080
